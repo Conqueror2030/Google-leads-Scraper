@@ -36,7 +36,7 @@ def get_dropdown_links(base_url: str) -> dict:
         links = el.find_all('a', href=True)
         for link in links:
             href = link.get('href').lower()
-            if any(keyword in href for keyword in ['/service', '/our-work', '/treatments', '/procedures']):
+            if any(keyword in href for keyword in ['/service', '/our-work', '/treatment', '/procedure', '/specialt']):
                 full_url = urljoin(base_url, link.get('href'))
                 sub_urls.add(full_url)
                 if len(sub_urls) >= 4:

@@ -47,22 +47,30 @@ def audit_business(urls: List[str], is_spending_on_ads: bool = False) -> dict:
     ad_waste_directive = ""
     if is_spending_on_ads:
         ad_waste_directive = """
-    CRITICAL: This business is currently SPENDING MONEY ON ADS.
-    You must construct the 'revenue_bleed_impact' analysis explicitly focused on ad budget waste (e.g., paying for clicks that bounce due to missing features).
-    You must also weave a direct mention of this active ad leakage into the 'personalized_pitch_hook' to grab their attention.
+    CRITICAL: This business is currently flagged with 'IS_SPENDING_ON_ADS: True'.
+    You must run a strict comparative analysis to verify if their high-ticket service dropdown landing pages are missing conversational assistants or 24/7 capture funnels.
+    Map this directly to the 'revenue_bleed_impact' output focusing entirely on ad budget waste.
+    Explicitly weave mentions of their unique dropdown services by name and their ad leakage into the generated 'personalized_pitch_hook' email template.
     """
 
     prompt = f"""
-    Please audit the following website URLs for a local business:
+    You are an expert Conversion Rate Optimization auditor.
+    Analyze the entire digital footprint provided in this multi-URL cloud context bundle simultaneously:
+
     {url_list_str}
 
-    Evaluate the full live web context under the standard Conversion Velocity Score (CVS) metric.
+    Cross-examine the structural layouts, text placement, and asset files.
+
+    Evaluate the full context under the standard Conversion Velocity Score (CVS) metric.
     Start at 100 points and deduct value mathematically based on the following criteria:
     - Deduct 40 points if the site completely lacks an interactive conversational assistant or 24/7 instant booking mechanism.
     - Deduct 30 points if visual structures present bad mobile viewports, unappealing color contrast, or hidden CTAs.
     - Deduct 20 points if high-ticket service sub-pages contain blocks of text without localized capture funnels.
     - Deduct 10 points if resource loading indicates broken asset files or bloated code structure.
+
     {ad_waste_directive}
+
+    If 'IS_SPENDING_ON_ADS: True' is not flagged, still ensure you explicitly weave mentions of their unique dropdown services by name into the 'personalized_pitch_hook' email template.
 
     Return the result strictly as a JSON object matching this schema:
     - conversion_velocity_score: integer (the calculated score, 0 to 100)
