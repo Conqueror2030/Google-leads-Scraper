@@ -27,10 +27,11 @@ def check_for_429(e: Exception) -> bool:
     before_sleep=lambda retry_state: print(f"Retrying auditor due to error: {retry_state.outcome.exception()}..."),
     reraise=True
 )
-def audit_business(urls: List[str]) -> dict:
+def audit_business(urls: List[str], is_spending_on_ads: bool = False) -> dict:
     """
     Audits a list of bundled URLs (Homepage + Dropdown service pages).
     Uses v1beta1 API and url_context tool to evaluate CVS score.
+    Tailors the revenue bleed and pitch if the business is actively spending on ads.
     Retries on errors (specifically targeting 429).
     """
     api_key = os.environ.get("GEMINI_API_KEY")
@@ -43,6 +44,14 @@ def audit_business(urls: List[str]) -> dict:
     # Format the URLs as the contents of the prompt
     url_list_str = "\n".join(urls)
 
+    ad_waste_directive = ""
+    if is_spending_on_ads:
+        ad_waste_directive = """
+    CRITICAL: This business is currently SPENDING MONEY ON ADS.
+    You must construct the 'revenue_bleed_impact' analysis explicitly focused on ad budget waste (e.g., paying for clicks that bounce due to missing features).
+    You must also weave a direct mention of this active ad leakage into the 'personalized_pitch_hook' to grab their attention.
+    """
+
     prompt = f"""
     Please audit the following website URLs for a local business:
     {url_list_str}
@@ -53,6 +62,7 @@ def audit_business(urls: List[str]) -> dict:
     - Deduct 30 points if visual structures present bad mobile viewports, unappealing color contrast, or hidden CTAs.
     - Deduct 20 points if high-ticket service sub-pages contain blocks of text without localized capture funnels.
     - Deduct 10 points if resource loading indicates broken asset files or bloated code structure.
+    {ad_waste_directive}
 
     Return the result strictly as a JSON object matching this schema:
     - conversion_velocity_score: integer (the calculated score, 0 to 100)

@@ -45,16 +45,16 @@ def get_business_domains(search_query: str, city: str = "New York", mock_fallbac
     if not businesses and mock_fallback:
         print("Network block encountered. Falling back to highly structured mock data...")
         return [
-            {"business_name": "Apex Elite Roofing", "root_url": "https://www.nycroofers.com", "phone_number": "555-0101", "google_rating": 4.8, "review_count": 120},
-            {"business_name": "Manhattan Precision Dental", "root_url": "https://www.manhattandentalcare.com", "phone_number": "555-0102", "google_rating": 4.9, "review_count": 340},
-            {"business_name": "SoHo Aesthetics & Spa", "root_url": "https://www.sohoaesthetics.com", "phone_number": "555-0103", "google_rating": 4.7, "review_count": 89},
-            {"business_name": "Brooklyn Master Plumbers", "root_url": "https://www.brooklynplumbingpros.com", "phone_number": "555-0104", "google_rating": 4.5, "review_count": 210},
-            {"business_name": "Queens Royal Landscaping", "root_url": "https://www.queenslandscaping.com", "phone_number": "555-0105", "google_rating": 4.6, "review_count": 150},
-            {"business_name": "Staten Island Climate Control", "root_url": "https://www.statenislandhvac.com", "phone_number": "555-0106", "google_rating": 4.4, "review_count": 305},
-            {"business_name": "NYC Custom Builders Inc", "root_url": "https://www.nyccustombuilders.com", "phone_number": "555-0107", "google_rating": 4.8, "review_count": 88},
-            {"business_name": "Midtown Holistic Chiropractic", "root_url": "https://www.midtownchiropractic.com", "phone_number": "555-0108", "google_rating": 4.9, "review_count": 412},
-            {"business_name": "Chelsea Advanced Vet Clinic", "root_url": "https://www.chelseavetclinic.com", "phone_number": "555-0109", "google_rating": 4.7, "review_count": 275},
-            {"business_name": "Tribeca Luxury Contractors", "root_url": "https://www.tribecacontractors.com", "phone_number": "555-0110", "google_rating": 4.6, "review_count": 94}
+            {"business_name": "Apex Elite Roofing", "root_url": "https://www.nycroofers.com", "phone_number": "555-0101", "google_rating": 4.8, "review_count": 120, "is_spending_on_ads": True},
+            {"business_name": "Manhattan Precision Dental", "root_url": "https://www.manhattandentalcare.com", "phone_number": "555-0102", "google_rating": 4.9, "review_count": 340, "is_spending_on_ads": False},
+            {"business_name": "SoHo Aesthetics & Spa", "root_url": "https://www.sohoaesthetics.com", "phone_number": "555-0103", "google_rating": 4.7, "review_count": 89, "is_spending_on_ads": True},
+            {"business_name": "Brooklyn Master Plumbers", "root_url": "https://www.brooklynplumbingpros.com", "phone_number": "555-0104", "google_rating": 4.5, "review_count": 210, "is_spending_on_ads": False},
+            {"business_name": "Queens Royal Landscaping", "root_url": "https://www.queenslandscaping.com", "phone_number": "555-0105", "google_rating": 4.6, "review_count": 150, "is_spending_on_ads": True},
+            {"business_name": "Staten Island Climate Control", "root_url": "https://www.statenislandhvac.com", "phone_number": "555-0106", "google_rating": 4.4, "review_count": 305, "is_spending_on_ads": False},
+            {"business_name": "NYC Custom Builders Inc", "root_url": "https://www.nyccustombuilders.com", "phone_number": "555-0107", "google_rating": 4.8, "review_count": 88, "is_spending_on_ads": True},
+            {"business_name": "Midtown Holistic Chiropractic", "root_url": "https://www.midtownchiropractic.com", "phone_number": "555-0108", "google_rating": 4.9, "review_count": 412, "is_spending_on_ads": False},
+            {"business_name": "Chelsea Advanced Vet Clinic", "root_url": "https://www.chelseavetclinic.com", "phone_number": "555-0109", "google_rating": 4.7, "review_count": 275, "is_spending_on_ads": True},
+            {"business_name": "Tribeca Luxury Contractors", "root_url": "https://www.tribecacontractors.com", "phone_number": "555-0110", "google_rating": 4.6, "review_count": 94, "is_spending_on_ads": False}
         ]
 
     return businesses[:10]

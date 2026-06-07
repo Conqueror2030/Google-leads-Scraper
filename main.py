@@ -35,11 +35,12 @@ def run_pipeline(offering: str, city: str = "New York"):
         for business in businesses:
             domain = business.get("root_url")
             business_name = business.get("business_name", "Unknown Business")
+            is_spending_on_ads = business.get("is_spending_on_ads", False)
 
             if not domain:
                 continue
 
-            print(f"Evaluating: {business_name} ({domain})")
+            print(f"Evaluating: {business_name} ({domain}) | Ads Active: {is_spending_on_ads}")
 
             # Check Cache
             cached_data = check_cache(domain)
@@ -72,7 +73,7 @@ def run_pipeline(offering: str, city: str = "New York"):
             try:
                 # This could fail if API key is invalid or structured output parsing fails entirely
                 # The tenacity retry handles 429s internally
-                audit_result_str = audit_business(urls_to_audit)
+                audit_result_str = audit_business(urls_to_audit, is_spending_on_ads=is_spending_on_ads)
                 audit_result = simdjson.loads(audit_result_str)
 
                 cvs_score = audit_result.get("conversion_velocity_score", 100)
