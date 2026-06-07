@@ -28,19 +28,25 @@ def run_pipeline(offering: str, city: str = "New York"):
         query = target["search_query"]
         print(f"\n--- Processing Niche: {niche} (Query: {query}) ---")
 
-        # Scrape Base Domains
-        domains = get_business_domains(query, city=city)
-        print(f"Found {len(domains)} domains for {niche}.")
+        # Scrape Businesses
+        businesses = get_business_domains(query, city=city)
+        print(f"Found {len(businesses)} businesses for {niche}.")
 
-        for domain in domains:
-            print(f"Evaluating: {domain}")
+        for business in businesses:
+            domain = business.get("root_url")
+            business_name = business.get("business_name", "Unknown Business")
+
+            if not domain:
+                continue
+
+            print(f"Evaluating: {business_name} ({domain})")
 
             # Check Cache
             cached_data = check_cache(domain)
             if cached_data:
                 print(f"Cache HIT for {domain}. Skipping API.")
                 lead_entry = {
-                    "Company Name": domain.replace("https://", "").replace("http://", "").replace("www.", "").split(".")[0].title(),
+                    "Company Name": cached_data.get("business_name", business_name),
                     "Website URL": domain,
                     "Lead Contact Email": cached_data.get("extracted_email", "No email found"),
                     "Conversion Velocity Score": cached_data["cvs_score"],
@@ -75,10 +81,10 @@ def run_pipeline(offering: str, city: str = "New York"):
                 personalized_pitch_hook = audit_result.get("personalized_pitch_hook", "")
 
                 # Save to cache
-                save_to_cache(domain, cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, primary_email)
+                save_to_cache(domain, business_name, cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, primary_email)
 
                 lead_entry = {
-                    "Company Name": domain.replace("https://", "").replace("http://", "").replace("www.", "").split(".")[0].title(),
+                    "Company Name": business_name,
                     "Website URL": domain,
                     "Lead Contact Email": primary_email,
                     "Conversion Velocity Score": cvs_score,
