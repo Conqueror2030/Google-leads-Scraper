@@ -6,8 +6,9 @@ from typing import List
 
 class AuditResult(BaseModel):
     conversion_velocity_score: int
-    flaw_data: List[str]
-    pitch_email: str
+    what_they_are_missing: str
+    revenue_bleed_impact: str
+    personalized_pitch_hook: str
 
 # Define exception type for Tenacity to catch.
 # Depending on the exact exception google.genai throws for 429, we might just catch Exception
@@ -53,12 +54,11 @@ def audit_business(urls: List[str]) -> dict:
     - Deduct 20 points if high-ticket service sub-pages contain blocks of text without localized capture funnels.
     - Deduct 10 points if resource loading indicates broken asset files or bloated code structure.
 
-    Based on the audit, formulate a professional pitch email targeting the business owner to offer premium website & AI chatbot development.
-
     Return the result strictly as a JSON object matching this schema:
-    - conversion_velocity_score: integer (the calculated score)
-    - flaw_data: list of strings (the specific deductions and reasons)
-    - pitch_email: string (the professional pitch email)
+    - conversion_velocity_score: integer (the calculated score, 0 to 100)
+    - what_they_are_missing: string (Explicit visual or conversational features completely lacking on the site)
+    - revenue_bleed_impact: string (A calculated mathematical reason showing the business owner exactly how much traffic/capital they are actively losing due to these flaws)
+    - personalized_pitch_hook: string (A 100% customized cold outreach email targeting their specific dropdown services by name)
     """
 
     try:

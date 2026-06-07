@@ -40,22 +40,27 @@ def run_pipeline(offering: str, city: str = "New York"):
             if cached_data:
                 print(f"Cache HIT for {domain}. Skipping API.")
                 lead_entry = {
-                    "niche": niche,
-                    "search_query": query,
-                    "domain": domain,
-                    "cvs_score": cached_data["cvs_score"],
-                    "flaw_data": cached_data["flaw_data"],
-                    "pitch_email": cached_data["pitch_email"]
+                    "Company Name": domain.replace("https://", "").replace("http://", "").replace("www.", "").split(".")[0].title(),
+                    "Website URL": domain,
+                    "Lead Contact Email": cached_data.get("extracted_email", "No email found"),
+                    "Conversion Velocity Score": cached_data["cvs_score"],
+                    "What They Are Missing": cached_data["what_they_are_missing"],
+                    "Revenue Bleed Impact": cached_data["revenue_bleed_impact"],
+                    "Personalized Pitch Hook": cached_data["personalized_pitch_hook"]
                 }
                 all_leads.append(lead_entry)
                 continue
 
             print(f"Cache MISS for {domain}. Proceeding with live audit.")
 
-            # Extract Dropdowns
-            sub_links = get_dropdown_links(domain)
+            # Extract Dropdowns and Emails
+            dropdown_data = get_dropdown_links(domain)
+            sub_links = dropdown_data.get("links", [])
+            extracted_emails = dropdown_data.get("emails", [])
+            primary_email = extracted_emails[0] if extracted_emails else "No email found"
+
             urls_to_audit = [domain] + sub_links
-            print(f"Bundled {len(urls_to_audit)} URLs for audit.")
+            print(f"Bundled {len(urls_to_audit)} URLs for audit. Found email: {primary_email}")
 
             # Audit via Gemini
             try:
@@ -65,19 +70,21 @@ def run_pipeline(offering: str, city: str = "New York"):
                 audit_result = simdjson.loads(audit_result_str)
 
                 cvs_score = audit_result.get("conversion_velocity_score", 100)
-                flaw_data = audit_result.get("flaw_data", [])
-                pitch_email = audit_result.get("pitch_email", "")
+                what_they_are_missing = audit_result.get("what_they_are_missing", "")
+                revenue_bleed_impact = audit_result.get("revenue_bleed_impact", "")
+                personalized_pitch_hook = audit_result.get("personalized_pitch_hook", "")
 
                 # Save to cache
-                save_to_cache(domain, cvs_score, flaw_data, pitch_email)
+                save_to_cache(domain, cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, primary_email)
 
                 lead_entry = {
-                    "niche": niche,
-                    "search_query": query,
-                    "domain": domain,
-                    "cvs_score": cvs_score,
-                    "flaw_data": flaw_data,
-                    "pitch_email": pitch_email
+                    "Company Name": domain.replace("https://", "").replace("http://", "").replace("www.", "").split(".")[0].title(),
+                    "Website URL": domain,
+                    "Lead Contact Email": primary_email,
+                    "Conversion Velocity Score": cvs_score,
+                    "What They Are Missing": what_they_are_missing,
+                    "Revenue Bleed Impact": revenue_bleed_impact,
+                    "Personalized Pitch Hook": personalized_pitch_hook
                 }
                 all_leads.append(lead_entry)
 

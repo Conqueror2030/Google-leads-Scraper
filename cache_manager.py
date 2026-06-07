@@ -11,8 +11,10 @@ def init_db():
         CREATE TABLE IF NOT EXISTS audited_leads (
             domain TEXT PRIMARY KEY,
             cvs_score INTEGER,
-            flaw_data TEXT,
-            pitch_email TEXT
+            what_they_are_missing TEXT,
+            revenue_bleed_impact TEXT,
+            personalized_pitch_hook TEXT,
+            extracted_email TEXT
         )
     ''')
     conn.commit()
@@ -24,28 +26,29 @@ def check_cache(domain: str):
     """
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
-    cursor.execute("SELECT cvs_score, flaw_data, pitch_email FROM audited_leads WHERE domain = ?", (domain,))
+    cursor.execute("SELECT cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, extracted_email FROM audited_leads WHERE domain = ?", (domain,))
     result = cursor.fetchone()
     conn.close()
 
     if result:
         return {
             "cvs_score": result[0],
-            "flaw_data": simdjson.loads(result[1]),
-            "pitch_email": result[2]
+            "what_they_are_missing": result[1],
+            "revenue_bleed_impact": result[2],
+            "personalized_pitch_hook": result[3],
+            "extracted_email": result[4]
         }
     return None
 
-def save_to_cache(domain: str, cvs_score: int, flaw_data: list, pitch_email: str):
+def save_to_cache(domain: str, cvs_score: int, what_they_are_missing: str, revenue_bleed_impact: str, personalized_pitch_hook: str, extracted_email: str):
     """
     Saves the audit results to the SQLite cache.
     """
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
-    flaw_data_json = json.dumps(flaw_data)
     cursor.execute(
-        "INSERT OR REPLACE INTO audited_leads (domain, cvs_score, flaw_data, pitch_email) VALUES (?, ?, ?, ?)",
-        (domain, cvs_score, flaw_data_json, pitch_email)
+        "INSERT OR REPLACE INTO audited_leads (domain, cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, extracted_email) VALUES (?, ?, ?, ?, ?, ?)",
+        (domain, cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, extracted_email)
     )
     conn.commit()
     conn.close()
