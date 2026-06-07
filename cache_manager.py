@@ -1,5 +1,6 @@
 import sqlite3
 import json
+import simdjson
 
 DB_FILE = "cache.db"
 
@@ -30,7 +31,7 @@ def check_cache(domain: str):
     if result:
         return {
             "cvs_score": result[0],
-            "flaw_data": json.loads(result[1]),
+            "flaw_data": simdjson.loads(result[1]),
             "pitch_email": result[2]
         }
     return None

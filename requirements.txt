@@ -5,3 +5,4 @@ tenacity
 beautifulsoup4
 requests
 pydantic
+pysimdjson

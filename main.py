@@ -1,5 +1,6 @@
 import time
 import json
+import simdjson
 from brainstormer import get_target_niches
 from maps_scraper import get_business_domains
 from dropdown_finder import get_dropdown_links
@@ -61,7 +62,7 @@ def run_pipeline(offering: str, city: str = "New York"):
                 # This could fail if API key is invalid or structured output parsing fails entirely
                 # The tenacity retry handles 429s internally
                 audit_result_str = audit_business(urls_to_audit)
-                audit_result = json.loads(audit_result_str)
+                audit_result = simdjson.loads(audit_result_str)
 
                 cvs_score = audit_result.get("conversion_velocity_score", 100)
                 flaw_data = audit_result.get("flaw_data", [])
