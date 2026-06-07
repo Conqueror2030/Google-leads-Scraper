@@ -87,6 +87,59 @@ def audit_business(urls: List[str], is_spending_on_ads: bool = False) -> dict:
             raise RateLimitError(str(e)) # Raise specific error for retry mechanism
         raise e
 
+@retry(
+    stop=stop_after_attempt(4),
+    wait=wait_exponential(multiplier=2, min=4, max=60),
+    retry=retry_if_exception_type(Exception),
+    before_sleep=lambda retry_state: print(f"Retrying missing website auditor due to error: {retry_state.outcome.exception()}..."),
+    reraise=True
+)
+def audit_missing_website(business_name: str, is_spending_on_ads: bool = False) -> dict:
+    """
+    Handles businesses completely missing a website footprint.
+    Does NOT use the url_context tool. Forces score to 0.
+    """
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        print("Warning: GEMINI_API_KEY environment variable is missing. Auditor may fail.")
+
+    client = genai.Client() # Standard client, no v1beta1 required here
+
+    ad_waste_directive = ""
+    if is_spending_on_ads:
+        ad_waste_directive = """
+    CRITICAL: This business is currently SPENDING MONEY ON ADS, but has NO website!
+    You must construct the 'revenue_bleed_impact' analysis explicitly highlighting the extreme waste of paying for ads when prospective clients have nowhere digital to land or book.
+    Weave a direct mention of this active ad leakage into the 'personalized_pitch_hook' to grab their attention.
+    """
+
+    prompt = f"""
+    The local business "{business_name}" is completely lacking a website or digital footprint.
+
+    {ad_waste_directive}
+
+    Evaluate this business and return the result strictly as a JSON object matching this schema:
+    - conversion_velocity_score: Must be strictly set to the integer 0.
+    - what_they_are_missing: string (Explicitly state they lack a digital footprint and online booking capability)
+    - revenue_bleed_impact: string (Calculate the mathematical reason showing the owner how much traffic/capital they are actively losing due to zero digital presence)
+    - personalized_pitch_hook: string (A high-converting customized cold outreach email offering a rapid premium website and chatbot package build)
+    """
+
+    try:
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+            config={
+                "response_mime_type": "application/json",
+                "response_schema": AuditResult,
+            },
+        )
+        return response.text
+    except Exception as e:
+        if check_for_429(e):
+            raise RateLimitError(str(e))
+        raise e
+
 if __name__ == "__main__":
     # Dummy test to verify syntax and retry logic structure
     pass

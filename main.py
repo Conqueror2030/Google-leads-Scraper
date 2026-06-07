@@ -5,7 +5,7 @@ from brainstormer import get_target_niches
 from maps_scraper import get_business_domains
 from dropdown_finder import get_dropdown_links
 from cache_manager import check_cache, save_to_cache
-from gemini_auditor import audit_business, RateLimitError
+from gemini_auditor import audit_business, audit_missing_website, RateLimitError
 from excel_exporter import export_leads
 
 def run_pipeline(offering: str, city: str = "New York"):
@@ -33,22 +33,22 @@ def run_pipeline(offering: str, city: str = "New York"):
         print(f"Found {len(businesses)} businesses for {niche}.")
 
         for business in businesses:
-            domain = business.get("root_url")
+            domain = business.get("root_url", "").strip()
             business_name = business.get("business_name", "Unknown Business")
             is_spending_on_ads = business.get("is_spending_on_ads", False)
 
-            if not domain:
-                continue
+            cache_key = domain if domain else f"NO_URL_{business_name.replace(' ', '_')}"
+            display_url = domain if domain else "No Website"
 
-            print(f"Evaluating: {business_name} ({domain}) | Ads Active: {is_spending_on_ads}")
+            print(f"Evaluating: {business_name} ({display_url}) | Ads Active: {is_spending_on_ads}")
 
             # Check Cache
-            cached_data = check_cache(domain)
+            cached_data = check_cache(cache_key)
             if cached_data:
-                print(f"Cache HIT for {domain}. Skipping API.")
+                print(f"Cache HIT for {cache_key}. Skipping API.")
                 lead_entry = {
                     "Company Name": cached_data.get("business_name", business_name),
-                    "Website URL": domain,
+                    "Website URL": display_url,
                     "Lead Contact Email": cached_data.get("extracted_email", "No email found"),
                     "Conversion Velocity Score": cached_data["cvs_score"],
                     "What They Are Missing": cached_data["what_they_are_missing"],
@@ -58,35 +58,42 @@ def run_pipeline(offering: str, city: str = "New York"):
                 all_leads.append(lead_entry)
                 continue
 
-            print(f"Cache MISS for {domain}. Proceeding with live audit.")
+            print(f"Cache MISS for {cache_key}. Proceeding with live audit.")
 
-            # Extract Dropdowns and Emails
-            dropdown_data = get_dropdown_links(domain)
-            sub_links = dropdown_data.get("links", [])
-            extracted_emails = dropdown_data.get("emails", [])
-            primary_email = extracted_emails[0] if extracted_emails else "No email found"
+            primary_email = "No email found"
 
-            urls_to_audit = [domain] + sub_links
-            print(f"Bundled {len(urls_to_audit)} URLs for audit. Found email: {primary_email}")
-
-            # Audit via Gemini
             try:
-                # This could fail if API key is invalid or structured output parsing fails entirely
-                # The tenacity retry handles 429s internally
-                audit_result_str = audit_business(urls_to_audit, is_spending_on_ads=is_spending_on_ads)
-                audit_result = simdjson.loads(audit_result_str)
+                if not domain:
+                    # Logic for Missing Website Footprint
+                    print("Executing zero-score direct audit for missing website...")
+                    audit_result_str = audit_missing_website(business_name, is_spending_on_ads=is_spending_on_ads)
+                    audit_result = simdjson.loads(audit_result_str)
+                else:
+                    # Extract Dropdowns and Emails for Valid Domains
+                    dropdown_data = get_dropdown_links(domain)
+                    sub_links = dropdown_data.get("links", [])
+                    extracted_emails = dropdown_data.get("emails", [])
+                    if extracted_emails:
+                        primary_email = extracted_emails[0]
 
-                cvs_score = audit_result.get("conversion_velocity_score", 100)
+                    urls_to_audit = [domain] + sub_links
+                    print(f"Bundled {len(urls_to_audit)} URLs for audit. Found email: {primary_email}")
+
+                    # Standard Audit via Gemini
+                    audit_result_str = audit_business(urls_to_audit, is_spending_on_ads=is_spending_on_ads)
+                    audit_result = simdjson.loads(audit_result_str)
+
+                cvs_score = audit_result.get("conversion_velocity_score", 100 if domain else 0)
                 what_they_are_missing = audit_result.get("what_they_are_missing", "")
                 revenue_bleed_impact = audit_result.get("revenue_bleed_impact", "")
                 personalized_pitch_hook = audit_result.get("personalized_pitch_hook", "")
 
                 # Save to cache
-                save_to_cache(domain, business_name, cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, primary_email)
+                save_to_cache(cache_key, business_name, cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, primary_email)
 
                 lead_entry = {
                     "Company Name": business_name,
-                    "Website URL": domain,
+                    "Website URL": display_url,
                     "Lead Contact Email": primary_email,
                     "Conversion Velocity Score": cvs_score,
                     "What They Are Missing": what_they_are_missing,

@@ -54,7 +54,8 @@ def get_business_domains(search_query: str, city: str = "New York", mock_fallbac
             {"business_name": "NYC Custom Builders Inc", "root_url": "https://www.nyccustombuilders.com", "phone_number": "555-0107", "google_rating": 4.8, "review_count": 88, "is_spending_on_ads": True},
             {"business_name": "Midtown Holistic Chiropractic", "root_url": "https://www.midtownchiropractic.com", "phone_number": "555-0108", "google_rating": 4.9, "review_count": 412, "is_spending_on_ads": False},
             {"business_name": "Chelsea Advanced Vet Clinic", "root_url": "https://www.chelseavetclinic.com", "phone_number": "555-0109", "google_rating": 4.7, "review_count": 275, "is_spending_on_ads": True},
-            {"business_name": "Tribeca Luxury Contractors", "root_url": "https://www.tribecacontractors.com", "phone_number": "555-0110", "google_rating": 4.6, "review_count": 94, "is_spending_on_ads": False}
+            {"business_name": "Tribeca Luxury Contractors", "root_url": "https://www.tribecacontractors.com", "phone_number": "555-0110", "google_rating": 4.6, "review_count": 94, "is_spending_on_ads": False},
+            {"business_name": "Downtown Legacy Roofing", "root_url": "", "phone_number": "555-0111", "google_rating": 4.5, "review_count": 45, "is_spending_on_ads": True}
         ]
 
     return businesses[:10]
