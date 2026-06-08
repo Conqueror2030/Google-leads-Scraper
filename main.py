@@ -36,6 +36,8 @@ def run_pipeline(offering: str, city: str = "New York"):
             domain = business.get("root_url", "").strip()
             business_name = business.get("business_name", "Unknown Business")
             is_spending_on_ads = business.get("is_spending_on_ads", False)
+            phone_number = business.get("phone_number", "")
+            google_rating = business.get("google_rating", "")
 
             cache_key = domain if domain else f"NO_URL_{business_name.replace(' ', '_')}"
             display_url = domain if domain else "No Website"
@@ -49,7 +51,11 @@ def run_pipeline(offering: str, city: str = "New York"):
                 lead_entry = {
                     "Company Name": cached_data.get("business_name", business_name),
                     "Website URL": display_url,
+                    "Audited URL Bundle": cached_data.get("audited_bundle", "No Website"),
                     "Lead Contact Email": cached_data.get("extracted_email", "No email found"),
+                    "Phone Number": phone_number,
+                    "Is Running Ads": is_spending_on_ads,
+                    "Google Rating": google_rating,
                     "Conversion Velocity Score": cached_data["cvs_score"],
                     "What They Are Missing": cached_data["what_they_are_missing"],
                     "Revenue Bleed Impact": cached_data["revenue_bleed_impact"],
@@ -61,6 +67,7 @@ def run_pipeline(offering: str, city: str = "New York"):
             print(f"Cache MISS for {cache_key}. Proceeding with live audit.")
 
             primary_email = "No email found"
+            audited_bundle_str = "No Website"
 
             try:
                 if not domain:
@@ -77,6 +84,7 @@ def run_pipeline(offering: str, city: str = "New York"):
                         primary_email = extracted_emails[0]
 
                     urls_to_audit = [domain] + sub_links
+                    audited_bundle_str = ", ".join(urls_to_audit)
                     print(f"Bundled {len(urls_to_audit)} URLs for audit. Found email: {primary_email}")
 
                     # Standard Audit via Gemini
@@ -89,12 +97,16 @@ def run_pipeline(offering: str, city: str = "New York"):
                 personalized_pitch_hook = audit_result.get("personalized_pitch_hook", "")
 
                 # Save to cache
-                save_to_cache(cache_key, business_name, cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, primary_email)
+                save_to_cache(cache_key, business_name, cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, primary_email, audited_bundle_str)
 
                 lead_entry = {
                     "Company Name": business_name,
                     "Website URL": display_url,
+                    "Audited URL Bundle": audited_bundle_str,
                     "Lead Contact Email": primary_email,
+                    "Phone Number": phone_number,
+                    "Is Running Ads": is_spending_on_ads,
+                    "Google Rating": google_rating,
                     "Conversion Velocity Score": cvs_score,
                     "What They Are Missing": what_they_are_missing,
                     "Revenue Bleed Impact": revenue_bleed_impact,

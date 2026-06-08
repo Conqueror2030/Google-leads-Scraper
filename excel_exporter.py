@@ -11,7 +11,7 @@ def export_leads(leads: list):
     lowest scoring businesses at the top.
 
     Expected column order:
-    ['Company Name', 'Website URL', 'Lead Contact Email', 'Conversion Velocity Score', 'What They Are Missing', 'Revenue Bleed Impact', 'Personalized Pitch Hook']
+    ['Company Name', 'Website URL', 'Audited URL Bundle', 'Lead Contact Email', 'Phone Number', 'Is Running Ads', 'Google Rating', 'Conversion Velocity Score', 'What They Are Missing', 'Revenue Bleed Impact', 'Personalized Pitch Hook']
     """
     if not leads:
         print("No leads to export.")
@@ -20,7 +20,7 @@ def export_leads(leads: list):
     df = pd.DataFrame(leads)
 
     # Enforce column order
-    expected_columns = ['Company Name', 'Website URL', 'Lead Contact Email', 'Conversion Velocity Score', 'What They Are Missing', 'Revenue Bleed Impact', 'Personalized Pitch Hook']
+    expected_columns = ['Company Name', 'Website URL', 'Audited URL Bundle', 'Lead Contact Email', 'Phone Number', 'Is Running Ads', 'Google Rating', 'Conversion Velocity Score', 'What They Are Missing', 'Revenue Bleed Impact', 'Personalized Pitch Hook']
     # Filter only columns that exist (in case of malformed data) but maintain order
     ordered_columns = [col for col in expected_columns if col in df.columns]
     df = df[ordered_columns]

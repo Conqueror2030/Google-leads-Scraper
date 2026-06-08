@@ -15,7 +15,8 @@ def init_db():
             what_they_are_missing TEXT,
             revenue_bleed_impact TEXT,
             personalized_pitch_hook TEXT,
-            extracted_email TEXT
+            extracted_email TEXT,
+            audited_bundle TEXT
         )
     ''')
     conn.commit()
@@ -27,7 +28,7 @@ def check_cache(domain: str):
     """
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
-    cursor.execute("SELECT business_name, cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, extracted_email FROM audited_leads WHERE domain = ?", (domain,))
+    cursor.execute("SELECT business_name, cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, extracted_email, audited_bundle FROM audited_leads WHERE domain = ?", (domain,))
     result = cursor.fetchone()
     conn.close()
 
@@ -38,19 +39,20 @@ def check_cache(domain: str):
             "what_they_are_missing": result[2],
             "revenue_bleed_impact": result[3],
             "personalized_pitch_hook": result[4],
-            "extracted_email": result[5]
+            "extracted_email": result[5],
+            "audited_bundle": result[6]
         }
     return None
 
-def save_to_cache(domain: str, business_name: str, cvs_score: int, what_they_are_missing: str, revenue_bleed_impact: str, personalized_pitch_hook: str, extracted_email: str):
+def save_to_cache(domain: str, business_name: str, cvs_score: int, what_they_are_missing: str, revenue_bleed_impact: str, personalized_pitch_hook: str, extracted_email: str, audited_bundle: str):
     """
     Saves the audit results to the SQLite cache.
     """
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT OR REPLACE INTO audited_leads (domain, business_name, cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, extracted_email) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (domain, business_name, cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, extracted_email)
+        "INSERT OR REPLACE INTO audited_leads (domain, business_name, cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, extracted_email, audited_bundle) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (domain, business_name, cvs_score, what_they_are_missing, revenue_bleed_impact, personalized_pitch_hook, extracted_email, audited_bundle)
     )
     conn.commit()
     conn.close()
