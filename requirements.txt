@@ -1,0 +1,8 @@
+google-genai
+pandas
+openpyxl
+tenacity
+beautifulsoup4
+requests
+pydantic
+pysimdjson
