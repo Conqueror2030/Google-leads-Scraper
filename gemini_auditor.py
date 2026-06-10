@@ -30,7 +30,7 @@ def check_for_429(e: Exception) -> bool:
 def audit_business(urls: List[str], is_spending_on_ads: bool = False) -> dict:
     """
     Audits a list of bundled URLs (Homepage + Dropdown service pages).
-    Uses v1beta1 API and url_context tool to evaluate CVS score.
+    Uses standard API and url_context tool to evaluate CVS score.
     Tailors the revenue bleed and pitch if the business is actively spending on ads.
     Retries on errors (specifically targeting 429).
     """
@@ -38,8 +38,7 @@ def audit_business(urls: List[str], is_spending_on_ads: bool = False) -> dict:
     if not api_key:
         print("Warning: GEMINI_API_KEY environment variable is missing. Auditor may fail.")
 
-    # Initialize client specifically with v1beta1 to use url_context
-    client = genai.Client(http_options={"api_version": "v1beta1"})
+    client = genai.Client()
 
     # Format the URLs as the contents of the prompt
     url_list_str = "\n".join(urls)
