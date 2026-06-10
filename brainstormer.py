@@ -19,7 +19,7 @@ def get_target_niches(offering_description: str) -> dict:
     if not api_key:
         print("Warning: GEMINI_API_KEY environment variable is missing. Brainstormer may fail.")
 
-    client = genai.Client(http_options={"api_version": "v1"})
+    client = genai.Client()
 
     prompt = f"""
     Given the following offering description: "{offering_description}"

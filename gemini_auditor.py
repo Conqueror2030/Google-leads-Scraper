@@ -38,7 +38,7 @@ def audit_business(urls: List[str], is_spending_on_ads: bool = False) -> dict:
     if not api_key:
         print("Warning: GEMINI_API_KEY environment variable is missing. Auditor may fail.")
 
-    client = genai.Client(http_options={"api_version": "v1"})
+    client = genai.Client()
 
     # Format the URLs as the contents of the prompt
     url_list_str = "\n".join(urls)
@@ -110,7 +110,7 @@ def audit_missing_website(business_name: str, is_spending_on_ads: bool = False) 
     if not api_key:
         print("Warning: GEMINI_API_KEY environment variable is missing. Auditor may fail.")
 
-    client = genai.Client(http_options={"api_version": "v1"})
+    client = genai.Client()
 
     ad_waste_directive = ""
     if is_spending_on_ads:
